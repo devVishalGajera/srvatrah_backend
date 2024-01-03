@@ -1,14 +1,18 @@
 const experienceModel = require("../models/experience");
 const mongoose = require("mongoose");
 const createIntialExperience = async (req, res) => {
-  const title = req.body.title;
-  if (!title) {
-    return res.status(400).json({ error: "Title is required" });
+  try {
+    const title = req.query.title;
+    if (!title || title.trim() === "" || title.length === 0) {
+      return res.status(400).json({ error: "Title is required" });
+    }
+    const intialExperience = await experienceModel.create({
+      title: title,
+    });
+    return res.status(200).json(intialExperience);
+  } catch (error) {
+    console.log(error, "error in creating initial experience");
   }
-  const intialExperience = await experienceModel.create({
-    title: title,
-  });
-  return res.status(200).json(intialExperience);
 };
 
 const updateExperience = async (req, res) => {
@@ -16,7 +20,9 @@ const updateExperience = async (req, res) => {
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ error: "Invalid id" });
   }
-  const nullOrNotPresentKeys = Object.keys(req.body).filter(
+  const body = req.query;
+
+  const nullOrNotPresentKeys = Object.keys(req.query).filter(
     (key) => req.body[key] !== null || req.body[key] !== undefined
   );
   if (nullOrNotPresentKeys.length === 0) {
@@ -28,6 +34,19 @@ const updateExperience = async (req, res) => {
     };
   });
   const keys = Object.keys(updatedDetails[0]);
+  if (keys.length === 0) {
+    return res.status(400).json({ error: "No data to update" });
+  }
+  if (keys.includes("img_link")) {
+    updatedDetails[0].img = updateExperience.img_link.map((img) => {
+      return {
+        filename: img.filename,
+        path: "http://127.0.0.1:3232/" + file.path.replace("public/", ""),
+        mimetype: file.mimetype,
+      };
+    });
+    delete updatedDetails[0].img_link;
+  }
   const experience = await experienceModel.findByIdAndUpdate(
     id,
     {
