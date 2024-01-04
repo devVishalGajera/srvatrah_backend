@@ -23,14 +23,14 @@ const updateExperience = async (req, res) => {
   const body = req.query;
 
   const nullOrNotPresentKeys = Object.keys(req.query).filter(
-    (key) => req.body[key] !== null || req.body[key] !== undefined
+    (key) => body[key] !== null || body[key] !== undefined
   );
   if (nullOrNotPresentKeys.length === 0) {
     return res.status(400).json({ error: "No data to update" });
   }
   const updatedDetails = nullOrNotPresentKeys.map((key) => {
     return {
-      [key]: req.body[key],
+      [key]: body[key],
     };
   });
   const keys = Object.keys(updatedDetails[0]);

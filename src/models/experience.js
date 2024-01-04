@@ -6,7 +6,7 @@ const expirenceSchema = mongoose.Schema({
   },
   duration: String,
   location: String,
-  category_theme: String,
+  category_theme: [String],
   description: {
     short_des: String,
     detail_dec: String,
