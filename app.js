@@ -15,6 +15,7 @@ const experienceRoute = require("./src/routes/experience");
 const cors = require("cors");
 const dotenv = require("dotenv");
 dotenv.config();
+const bodyParser = require("body-parser");
 // const crypto = require('crypto');
 
 // const secretKey = crypto.randomBytes(32).toString('hex');
@@ -40,7 +41,7 @@ app.use(
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
   })
 );
-
+app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieParser());

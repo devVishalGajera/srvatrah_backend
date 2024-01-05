@@ -1,4 +1,30 @@
 const mongoose = require("mongoose");
+const availabilityModel = require("./availability.model");
+const pricingModel = require("./pricing.model");
+const meetingPickupMode = require("./meetingPickup.model");
+
+const bookingCutoffMap = {
+  rightUpUntilStart: "I take booking right up until the start of the activity",
+  min15Before: "15 minutes before start time",
+  min30Before: "30 minutes before start time",
+  hour1Before: "1 hour before start time",
+  hour2Before: "2 hours before start time",
+  hour3Before: "3 hours before start time",
+  hour4Before: "4 hours before start time",
+  hour8Before: "8 hours before start time",
+  day1Before: "1 day before start time",
+  day2Before: "2 days before start time",
+  day3Before: "3 days before start time",
+  day4Before: "4 days before start time",
+  day5Before: "5 days before start time",
+  day6Before: "6 days before start time",
+  week1Before: "1 week before start time",
+  week2Before: "2 weeks before start time",
+  week4Before: "4 weeks before start time",
+  week8Before: "8 weeks before start time",
+  custom: "I want to define my own booking cutoff",
+};
+
 const expirenceSchema = mongoose.Schema({
   title: {
     type: String,
@@ -6,7 +32,10 @@ const expirenceSchema = mongoose.Schema({
   },
   duration: String,
   location: String,
-  category_theme: [String],
+  category_theme: {
+    category: String,
+    theme: String,
+  },
   description: {
     short_des: String,
     detail_dec: String,
@@ -25,10 +54,63 @@ const expirenceSchema = mongoose.Schema({
     detail_des: String,
   },
   exclusions: {
-    included: String, ////,
+    included: String,
     detail_des: String,
   },
+  availabilityType: {
+    type: String,
+    enum: ["date_time", "date", "pass"],
+  },
+  predefinedTimeAllowances: {
+    type: String,
+    enum: Object.keys(bookingCutoffMap),
+    default: "rightUpUntilStart",
+  },
+  availability_detail: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Availability",
+    },
+  ],
+  allow_custom_availability: {
+    type: Boolean,
+    default: false,
+  },
+  customTimeAllowance: {
+    type: {
+      duration: Number,
+      unit: String,
+    },
+    validate: {
+      validator: function () {
+        return this.allow_custom_availability || !this.customTimeAllowance;
+      },
+      message:
+        "Custom time allowance is only allowed when allowCustomTiming is true.",
+    },
+  },
+  capacity: {
+    type: String,
+    enum: ["sale", "limited", "on_request"],
+    default: "sale",
+  },
+  pricing: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Pricing",
+    },
+  ],
+  traveller_facilty: {
+    type: String,
+    enum: ["meet_on_location", "pick_up_only", "meet_on_location_or_pickup"],
+  },
+  meeting_point: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "MeetingPoint",
+    },
+  ],
 });
 
-const experience = mongoose.model("experience", expirenceSchema);
-module.exports = experience;
+const Experience = mongoose.model("Experience", expirenceSchema);
+module.exports = Experience;
