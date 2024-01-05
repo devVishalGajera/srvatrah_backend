@@ -8,5 +8,5 @@ route
   .post("/", experienceModel.createIntialExperience)
   .put("/:id", experienceModel.updateExperience)
   .delete("/:id", experienceModel.deleteExperience);
-
+route.post("/meetingPoint/:id", experienceModel.insertManyMeetingPoint);
 module.exports = route;

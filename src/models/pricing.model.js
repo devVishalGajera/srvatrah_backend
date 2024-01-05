@@ -44,23 +44,6 @@ const pricingSchema = new mongoose.Schema({
     required: true,
     default: 50,
   },
-  travelling_facility: {
-    pick_up_and_drop: {
-      price: {
-        type: Number,
-      },
-    },
-    pick_up_only: {
-      price: {
-        type: Number,
-      },
-    },
-    drop_only: {
-      price: {
-        type: Number,
-      },
-    },
-  },
 });
 
 module.exports = mongoose.model("Pricing", pricingSchema);

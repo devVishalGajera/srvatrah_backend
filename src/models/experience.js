@@ -40,7 +40,7 @@ const expirenceSchema = mongoose.Schema({
     short_des: String,
     detail_dec: String,
   },
-  video_link: String,
+  video_link: [String],
   img_link: {
     filename: String,
     path: String,
@@ -78,15 +78,11 @@ const expirenceSchema = mongoose.Schema({
   },
   customTimeAllowance: {
     type: {
-      duration: Number,
-      unit: String,
+      type: String,
+      enum: ["date", "date_time"],
     },
-    validate: {
-      validator: function () {
-        return this.allow_custom_availability || !this.customTimeAllowance;
-      },
-      message:
-        "Custom time allowance is only allowed when allowCustomTiming is true.",
+    value: {
+      type: String,
     },
   },
   capacity: {
@@ -100,6 +96,23 @@ const expirenceSchema = mongoose.Schema({
       ref: "Pricing",
     },
   ],
+  travelling_facility: {
+    pick_up_and_drop: {
+      price: {
+        type: Number,
+      },
+    },
+    pick_up_only: {
+      price: {
+        type: Number,
+      },
+    },
+    drop_only: {
+      price: {
+        type: Number,
+      },
+    },
+  },
   traveller_facilty: {
     type: String,
     enum: ["meet_on_location", "pick_up_only", "meet_on_location_or_pickup"],

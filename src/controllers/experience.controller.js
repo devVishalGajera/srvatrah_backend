@@ -1,5 +1,6 @@
 const availabilityModel = require("../models/availability.model");
 const experienceModel = require("../models/experience");
+const meetingPointModel = require("../models/meetingPickup.model");
 const mongoose = require("mongoose");
 const createIntialExperience = async (req, res) => {
   try {
@@ -23,7 +24,7 @@ const updateExperience = async (req, res) => {
   }
 
   const body = req.body;
-
+  console.log(body, "body");
   const nullOrNotPresentKeys = Object.keys(req.body).filter(
     (key) => body[key] !== null || body[key] !== undefined
   );
@@ -48,6 +49,7 @@ const updateExperience = async (req, res) => {
   });
 
   const keys = Object.keys(updatedDetails[0]);
+  console.log(keys, "keys");
 
   if (keys.length === 0) {
     return res.status(400).json({ error: "No data to update" });
@@ -171,50 +173,48 @@ const updateExperienceWithAvailability = async (req, res) => {
     return res.status(400).json({ error: "No data to update" });
   }
   const availability_array = [];
-  /**
-   
-const availabilitySchema = new mongoose.Schema({
-  day: {
-    type: String,
-    required: true,
-    enum: [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ],
-  },
-  isOpen: {
-    type: Boolean,
-    required: true,
-  },
-  is24Hours: {
-    type: Boolean,
-    required: function () {
-      return this.isOpen;
-    },
-  },
-  openHour: {
-    type: Number,
-    required: function () {
-      return !this.is24Hours && this.isOpen;
-    },
-  },
-  closeHour: {
-    type: Number,
-    required: function () {
-      return !this.is24Hours && this.isOpen;
-    },
-  },
-});
-   */
   const insertManyAvailability = await availabilityModel.insertMany(
     body.availability_detail
   );
-  return res.status(200).json(experience);
+  for (let i = 0; i < insertManyAvailability.length; i++) {
+    availability_array.push(insertManyAvailability[i]._id);
+  }
+  const updatedExperience = await experienceModel.findByIdAndUpdate(
+    id,
+    {
+      availability_detail: availability_array,
+    },
+    { new: true }
+  );
+  return res.status(200).json(updatedExperience);
+};
+
+const insertManyMeetingPoint = async (req, res) => {
+  const { id } = req.params;
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+  const experience = await experienceModel.findById(id);
+  if (!experience) {
+    return res.status(400).json({ error: "Experience not found" });
+  }
+  const body = req.body;
+  console.log(body, "body");
+  const keys = Object.keys(body);
+  if (keys.length === 0) {
+    return res.status(400).json({ error: "No data to update" });
+  }
+  const insertManyMeetingPoint = await meetingPointModel.insertMany(
+    body.meeting_point
+  );
+  const updatedExperience = await experienceModel.findByIdAndUpdate(
+    id,
+    {
+      meeting_point: insertManyMeetingPoint,
+    },
+    { new: true }
+  );
+  return res.status(200).json(updatedExperience);
 };
 
 module.exports = {
@@ -223,4 +223,6 @@ module.exports = {
   createIntialExperience,
   updateExperience,
   deleteExperience,
+  insertManyMeetingPoint,
+  updateExperienceWithAvailability,
 };
