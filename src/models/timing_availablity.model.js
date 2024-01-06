@@ -6,14 +6,8 @@ const timing_availabilitySchema = new mongoose.Schema({
     required: true,
   },
   duration: {
-    hours: {
-      type: Number,
-      required: true,
-    },
-    minutes: {
-      type: Number,
-      required: true,
-    },
+    type: String,
+    required: true,
   },
   internal_label: {
     type: String,
@@ -28,6 +22,6 @@ const timing_availabilitySchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model(
-  "timing_availability",
+  "TimingAvailability",
   timing_availabilitySchema
 );

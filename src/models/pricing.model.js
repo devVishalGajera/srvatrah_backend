@@ -31,18 +31,13 @@ const pricingSchema = new mongoose.Schema({
     default: "adult",
   },
   occupancy: {
-    type: Number,
-    required: true,
+    type: Number || null,
   },
   min_age: {
-    type: Number,
-    required: true,
-    default: 13,
+    type: Number || null,
   },
   max_age: {
-    type: Number,
-    required: true,
-    default: 50,
+    type: Number || null,
   },
 });
 

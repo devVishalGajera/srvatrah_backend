@@ -72,6 +72,12 @@ const expirenceSchema = mongoose.Schema({
       ref: "Availability",
     },
   ],
+  start_time: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TimingAvailability",
+    },
+  ],
   allow_custom_availability: {
     type: Boolean,
     default: false,

@@ -2,6 +2,8 @@ const availabilityModel = require("../models/availability.model");
 const experienceModel = require("../models/experience");
 const meetingPointModel = require("../models/meetingPickup.model");
 const mongoose = require("mongoose");
+const pricingModel = require("../models/pricing.model");
+const timeAvailabilityModel = require("../models/timing_availablity.model");
 const createIntialExperience = async (req, res) => {
   try {
     const title = req.query.title;
@@ -217,6 +219,69 @@ const insertManyMeetingPoint = async (req, res) => {
   return res.status(200).json(updatedExperience);
 };
 
+const updateExperienceWithTiming = async (req, res) => {
+  const { id } = req.params;
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+  const body = req.body;
+  const experience = await experienceModel.findById(id);
+  if (!experience) {
+    return res.status(400).json({ error: "Experience not found" });
+  }
+  const keys = Object.keys(body);
+  if (keys.length === 0) {
+    return res.status(400).json({ error: "No data to update" });
+  }
+  const timeAvailability = await timeAvailabilityModel.insertMany(
+    body.availability_detail
+  );
+  const timeAvailabilityId = [];
+  for (let i = 0; i < timeAvailability.length; i++) {
+    timeAvailabilityId.push(timeAvailability[i]._id);
+  }
+  const updatedExperience = await experienceModel
+    .findByIdAndUpdate(
+      id,
+      {
+        start_time: timeAvailabilityId,
+      },
+      { new: true }
+    )
+    .populate("availability_detail")
+    .populate("meeting_point");
+  return res.status(200).json(updatedExperience);
+};
+
+const insertManyPricing = async (req, res) => {
+  const { id } = req.params;
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+  const experience = await experienceModel.findById(id);
+  if (!experience) {
+    return res.status(400).json({ error: "Experience not found" });
+  }
+  const body = req.body;
+  const keys = Object.keys(body);
+  if (keys.length === 0) {
+    return res.status(400).json({ error: "No data to update" });
+  }
+  const insertManyPricing = await pricingModel.insertMany(body.pricing);
+  const insertManyPricingId = [];
+  for (let i = 0; i < insertManyPricing.length; i++) {
+    insertManyPricingId.push(insertManyPricing[i]._id);
+  }
+  const updatedExperience = await experienceModel.findByIdAndUpdate(
+    id,
+    {
+      pricing: insertManyPricingId,
+    },
+    { new: true }
+  );
+  return res.status(200).json(updatedExperience);
+};
+
 module.exports = {
   getAllExperience,
   getExperience,
@@ -225,4 +290,6 @@ module.exports = {
   deleteExperience,
   insertManyMeetingPoint,
   updateExperienceWithAvailability,
+  updateExperienceWithTiming,
+  insertManyPricing,
 };
