@@ -150,7 +150,12 @@ const getExperience = async (req, res) => {
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ error: "Invalid id" });
   }
-  const experience = await experienceModel.findById(id);
+  const experience = await experienceModel
+    .findById(id)
+    .populate("category_theme")
+    .populate("meeting_point")
+    .populate("availability_detail")
+    .populate("pricing");
   return res.status(200).json(experience);
 };
 

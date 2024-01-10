@@ -31,7 +31,11 @@ const expirenceSchema = mongoose.Schema({
     required: true,
   },
   duration: String,
-  location: String,
+  location: {
+    location: String,
+    city: String,
+    state: String,
+  },
   category_theme: {
     category: String,
     theme: String,
@@ -50,12 +54,12 @@ const expirenceSchema = mongoose.Schema({
     },
   },
   inclusions: {
-    included: String,
-    detail_des: String,
+    short_des: String,
+    detail_dec: String,
   },
   exclusions: {
-    included: String,
-    detail_des: String,
+    short_des: String,
+    detail_dec: String,
   },
   availabilityType: {
     type: String,

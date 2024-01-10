@@ -25,13 +25,13 @@ const availabilitySchema = new mongoose.Schema({
     },
   },
   openHour: {
-    type: Number,
+    type: String,
     required: function () {
       return !this.is24Hours && this.isOpen;
     },
   },
   closeHour: {
-    type: Number,
+    type: String,
     required: function () {
       return !this.is24Hours && this.isOpen;
     },
