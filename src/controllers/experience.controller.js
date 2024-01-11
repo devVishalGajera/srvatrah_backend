@@ -4,6 +4,13 @@ const meetingPointModel = require("../models/meetingPickup.model");
 const mongoose = require("mongoose");
 const pricingModel = require("../models/pricing.model");
 const timeAvailabilityModel = require("../models/timing_availablity.model");
+/**
+ * Creates an initial experience.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Object} The created initial experience.
+ */
 const createIntialExperience = async (req, res) => {
   try {
     const title = req.query.title;
@@ -18,6 +25,13 @@ const createIntialExperience = async (req, res) => {
     console.log(error, "error in creating initial experience");
   }
 };
+/**
+ * Updates the experience with the given ID.
+ *
+ * @param {object} req - The request object.
+ * @param {object} res - The response object.
+ * @return {Promise} The updated experience object.
+ */
 const updateExperience = async (req, res) => {
   const { id } = req.params;
 
@@ -136,6 +150,13 @@ const updateExperience = async (req, res) => {
 //   return res.status(200).json(experience);
 // };
 
+/**
+ * Delete an experience by its ID.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Object} The deleted experience.
+ */
 const deleteExperience = async (req, res) => {
   const { id } = req.params;
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
@@ -145,6 +166,15 @@ const deleteExperience = async (req, res) => {
   return res.status(200).json(experience);
 };
 
+/**
+ * Retrieves an experience with the given ID from the database and returns it as a JSON response.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} req.params - The parameters object containing the ID of the experience.
+ * @param {string} req.params.id - The ID of the experience to retrieve.
+ * @param {Object} res - The response object.
+ * @return {Object} The retrieved experience as a JSON response.
+ */
 const getExperience = async (req, res) => {
   const { id } = req.params;
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
@@ -165,6 +195,14 @@ const getAllExperience = async (req, res) => {
 };
 
 //meeting_point | pricing | availability_detail
+
+/**
+ * Updates the experience with availability.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Promise<Object>} The updated experience.
+ */
 const updateExperienceWithAvailability = async (req, res) => {
   const { id } = req.params;
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
@@ -196,6 +234,18 @@ const updateExperienceWithAvailability = async (req, res) => {
   return res.status(200).json(updatedExperience);
 };
 
+/**
+ * Inserts multiple meeting points into the database for a given experience.
+ *
+ * @param {Object} req - The request object containing parameters and body.
+ * @param {Object} req.params - The parameters object containing the id.
+ * @param {string} req.params.id - The id of the experience.
+ * @param {Object} req.body - The body object containing the data to update.
+ * @param {Array} req.body.meeting_point - The array of meeting points to insert.
+ * @param {Array} req.body.removeIds - The array of meeting point ids to remove.
+ * @param {Object} res - The response object to send back to the client.
+ * @return {Object} The updated experience object.
+ */
 const insertManyMeetingPoint = async (req, res) => {
   const { id } = req.params;
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
@@ -211,6 +261,18 @@ const insertManyMeetingPoint = async (req, res) => {
   if (keys.length === 0) {
     return res.status(400).json({ error: "No data to update" });
   }
+  const { removeIds } = body;
+  if (removeIds && removeIds.length > 0) {
+    await meetingPointModel.deleteMany({ _id: { $in: removeIds } });
+    const updatedExperience = await experienceModel.findByIdAndUpdate(
+      id,
+      {
+        meeting_point: [],
+      },
+      { new: true }
+    );
+    return res.status(200).json(updatedExperience);
+  }
   const insertManyMeetingPoint = await meetingPointModel.insertMany(
     body.meeting_point
   );
@@ -224,6 +286,13 @@ const insertManyMeetingPoint = async (req, res) => {
   return res.status(200).json(updatedExperience);
 };
 
+/**
+ * Updates the experience with timing.
+ *
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ * @return {Promise<object>} The updated experience.
+ */
 const updateExperienceWithTiming = async (req, res) => {
   const { id } = req.params;
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
@@ -258,6 +327,13 @@ const updateExperienceWithTiming = async (req, res) => {
   return res.status(200).json(updatedExperience);
 };
 
+/**
+ * Inserts multiple pricing data into the database for a specific experience.
+ *
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @return {Object} The updated experience object with the inserted pricing data.
+ */
 const insertManyPricing = async (req, res) => {
   const { id } = req.params;
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
