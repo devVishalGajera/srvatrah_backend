@@ -8,6 +8,7 @@ const timing_availabilitySchema = new mongoose.Schema({
   duration: {
     type: String,
     required: true,
+    default: "1:00",
   },
   internal_label: {
     type: String,
@@ -17,7 +18,6 @@ const timing_availabilitySchema = new mongoose.Schema({
   },
   product_code: {
     type: String,
-    required: true,
   },
 });
 

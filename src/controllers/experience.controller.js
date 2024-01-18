@@ -185,7 +185,8 @@ const getExperience = async (req, res) => {
     .populate("category_theme")
     .populate("meeting_point")
     .populate("availability_detail")
-    .populate("pricing");
+    .populate("pricing")
+    .populate("start_time");
   return res.status(200).json(experience);
 };
 
@@ -230,6 +231,37 @@ const updateExperienceWithAvailability = async (req, res) => {
       availability_detail: availability_array,
     },
     { new: true }
+  );
+  return res.status(200).json(updatedExperience);
+};
+
+const updateExperienceWithStartTime = async (req, res) => {
+  const { id } = req.params;
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+  const body = req.body;
+  const experience = await experienceModel.findById(id);
+  if (!experience) {
+    return res.status(400).json({ error: "Experience not found" });
+  }
+  const keys = Object.keys(body);
+  if (keys.length === 0) {
+    return res.status(400).json({ error: "No data to update" });
+  }
+  const start_time_array = [];
+  const insertManyStartTime = await startTimeModel.insertMany(body.start_time);
+  for (let i = 0; i < insertManyStartTime.length; i++) {
+    start_time_array.push(insertManyStartTime[i]._id);
+  }
+  const updatedExperience = await experienceModel.findByIdAndUpdate(
+    id,
+    {
+      start_time: start_time_array,
+    },
+    {
+      new: true,
+    }
   );
   return res.status(200).json(updatedExperience);
 };
@@ -372,5 +404,6 @@ module.exports = {
   insertManyMeetingPoint,
   updateExperienceWithAvailability,
   updateExperienceWithTiming,
+  updateExperienceWithStartTime,
   insertManyPricing,
 };
