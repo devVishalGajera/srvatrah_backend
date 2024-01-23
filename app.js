@@ -38,7 +38,11 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5173"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://v1.sarvatrah.com",
+    ],
     credentials: true,
     exposedHeaders: "*",
     optionsSuccessStatus: 200,
