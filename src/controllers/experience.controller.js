@@ -4,6 +4,7 @@ const meetingPointModel = require("../models/meetingPickup.model");
 const mongoose = require("mongoose");
 const pricingModel = require("../models/pricing.model");
 const timeAvailabilityModel = require("../models/timing_availablity.model");
+const { path } = require("../../app");
 /**
  * Creates an initial experience.
  *
@@ -48,14 +49,15 @@ const updateExperience = async (req, res) => {
   if (nullOrNotPresentKeys.length === 0) {
     return res.status(400).json({ error: "No data to update" });
   }
+  console.log(nullOrNotPresentKeys, "nullOrNotPresentKeys");
 
   const updatedDetails = nullOrNotPresentKeys.map((key) => {
     if (key === "img_link") {
       return {
         [key]: body[key].map((img) => ({
-          filename: img.filename,
-          path: "http://127.0.0.1:3232/" + img.path.replace("public/", ""),
-          mimetype: img.mimetype,
+          filename: img?.filename,
+          path: img.path,
+          mimetype: img?.mimetype,
         })),
       };
     }
@@ -71,14 +73,14 @@ const updateExperience = async (req, res) => {
     return res.status(400).json({ error: "No data to update" });
   }
 
-  if (keys.includes("img_link")) {
-    updatedDetails[0].img = updateExperience.img_link.map((img) => ({
-      filename: img.filename,
-      path: "http://127.0.0.1:3232/" + img.path.replace("public/", ""),
-      mimetype: img.mimetype,
-    }));
-    delete updatedDetails[0].img_link;
-  }
+  // if (keys.includes("img_link")) {
+  //   updatedDetails[0].img = updatedDetails[0].img_link.map((img) => ({
+  //     filename: img.filename,
+  //     path: img.path,
+  //     mimetype: img.mimetype,
+  //   }));
+  //   delete updatedDetails[0].img_link;
+  // }
 
   const experience = await experienceModel.findByIdAndUpdate(
     id,
@@ -210,6 +212,7 @@ const updateExperienceWithAvailability = async (req, res) => {
     return res.status(400).json({ error: "Invalid id" });
   }
   const body = req.body;
+  console.log(body, "body");
   const experience = await experienceModel.findById(id);
   if (!experience) {
     return res.status(400).json({ error: "Experience not found" });
