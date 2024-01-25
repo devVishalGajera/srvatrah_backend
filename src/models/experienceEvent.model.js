@@ -7,6 +7,12 @@ const mongoose = require("mongoose");
  */
 
 const eventSchema = new mongoose.Schema({
+  event: mongoose.Schema.Types.Mixed,
+});
+
+module.exports = mongoose.model("Event", eventSchema);
+
+/**
   startDate: { type: Date, default: Date.now },
   endDate: { type: Date },
   start_time: {
@@ -53,6 +59,4 @@ const eventSchema = new mongoose.Schema({
       },
     },
   },
-});
-
-module.exports = mongoose.model("Event", eventSchema);
+ */
