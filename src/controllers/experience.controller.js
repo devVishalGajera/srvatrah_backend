@@ -4,6 +4,7 @@ const meetingPointModel = require("../models/meetingPickup.model");
 const mongoose = require("mongoose");
 const pricingModel = require("../models/pricing.model");
 const timeAvailabilityModel = require("../models/timing_availablity.model");
+const eventCalenderModel = require("../models/experienceEvent.model");
 const { path } = require("../../app");
 /**
  * Creates an initial experience.
@@ -395,6 +396,38 @@ const insertManyPricing = async (req, res) => {
     },
     { new: true }
   );
+  return res.status(200).json(updatedExperience);
+};
+
+const addingCalenderEvents = async (req, res) => {
+  const { id } = req.params;
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+  const experience = await experienceModel.findById(id);
+  if (!experience) {
+    return res.status(400).json({ error: "Experience not found" });
+  }
+  const body = req.body;
+  const events = body.map((event) => {
+    return {
+      event: event,
+    };
+  });
+  console.log(body, "in calender controller");
+  const insertManyEvents = await calenderEventModel.insertMany(events);
+  const insertManyEventsId = [];
+  for (let i = 0; i < insertManyEvents.length; i++) {
+    insertManyEventsId.push(insertManyEvents[i]._id);
+  }
+  const updatedExperience = await experienceModel
+    .findByIdAndUpdate(id, {
+      calender_events: insertManyEventsId,
+    })
+    .populate("calender_events")
+    .populate("availability_detail")
+    .populate("pricing")
+    .populate("meeting_point");
   return res.status(200).json(updatedExperience);
 };
 

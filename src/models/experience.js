@@ -87,7 +87,7 @@ const expirenceSchema = mongoose.Schema({
     default: false,
   },
   customTimeAllowance: {
-    type: {
+    typeOf: {
       type: String,
       enum: ["date", "date_time"],
     },
@@ -131,6 +131,12 @@ const expirenceSchema = mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "MeetingPoint",
+    },
+  ],
+  calender_events: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "EventCalender",
     },
   ],
 });

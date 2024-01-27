@@ -10,7 +10,7 @@ const eventSchema = new mongoose.Schema({
   event: mongoose.Schema.Types.Mixed,
 });
 
-module.exports = mongoose.model("Event", eventSchema);
+module.exports = mongoose.model("EventCalender", eventSchema);
 
 /**
   startDate: { type: Date, default: Date.now },
