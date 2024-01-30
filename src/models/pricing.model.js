@@ -39,6 +39,10 @@ const pricingSchema = new mongoose.Schema({
   max_age: {
     type: Number || null,
   },
+  price: {
+    type: Number,
+    default: 100,
+  },
 });
 
 module.exports = mongoose.model("Pricing", pricingSchema);

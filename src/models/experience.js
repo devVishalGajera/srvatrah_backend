@@ -139,6 +139,15 @@ const expirenceSchema = mongoose.Schema({
       ref: "EventCalender",
     },
   ],
+  groupSize: {
+    type: Number,
+    default: 2,
+  },
+  cancelation_policy: {
+    type: String,
+    enum: ["free", "paid", "learn more"],
+    default: "learn more",
+  },
 });
 
 const Experience = mongoose.model("Experience", expirenceSchema);
