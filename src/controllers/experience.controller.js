@@ -194,7 +194,14 @@ const getExperience = async (req, res) => {
 };
 
 const getAllExperience = async (req, res) => {
-  const experience = await experienceModel.find();
+  const experience = await experienceModel
+    .find()
+    .populate("category_theme")
+    .populate("meeting_point")
+    .populate("availability_detail")
+    .populate("pricing")
+    .populate("start_time");
+
   return res.status(200).json(experience);
 };
 
