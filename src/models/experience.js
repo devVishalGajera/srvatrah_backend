@@ -45,14 +45,16 @@ const expirenceSchema = mongoose.Schema({
     detail_dec: String,
   },
   video_link: [String],
-  img_link: {
-    filename: String,
-    path: String,
-    mimetype: {
-      type: String,
-      default: "image/png",
+  img_link: [
+    {
+      filename: String,
+      path: String,
+      mimetype: {
+        type: String,
+        default: "image/png",
+      },
     },
-  },
+  ],
   inclusions: {
     short_des: String,
     detail_dec: String,
