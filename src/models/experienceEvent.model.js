@@ -7,7 +7,52 @@ const mongoose = require("mongoose");
  */
 
 const eventSchema = new mongoose.Schema({
-  event: mongoose.Schema.Types.Mixed,
+  title: {
+    type: String,
+  },
+  rrule: {
+    freq: {
+      type: String,
+      enum: ["weekly", "monthly", "yearly", "daily"],
+    },
+    interval: {
+      type: Number,
+      default: 1,
+    },
+    dtstart
+      : {
+      type: String,
+    },
+    byhour: {
+      type: [Number],
+      default: [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23,
+      ],
+    },
+    count: {
+      type: Number,
+    },
+    until: {
+      type: String
+    }
+  },
+  start_time: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TimingAvailability",
+    },
+  ],
+  participant: {
+    minimum: {
+      type: Number,
+      default: 1,
+    },
+    maximum: {
+      type: Number,
+      default: 15,
+    },
+  },
 });
 
 module.exports = mongoose.model("EventCalender", eventSchema);

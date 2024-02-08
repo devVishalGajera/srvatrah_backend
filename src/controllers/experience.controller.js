@@ -6,6 +6,7 @@ const pricingModel = require("../models/pricing.model");
 const timeAvailabilityModel = require("../models/timing_availablity.model");
 const eventCalenderModel = require("../models/experienceEvent.model");
 const { path } = require("../../app");
+const calenderEventModel = require("../models/experienceEvent.model");
 /**
  * Creates an initial experience.
  *
@@ -189,7 +190,8 @@ const getExperience = async (req, res) => {
     .populate("meeting_point")
     .populate("availability_detail")
     .populate("pricing")
-    .populate("start_time");
+    .populate("start_time")
+    .populate("calender_events");
   return res.status(200).json(experience);
 };
 
@@ -406,37 +408,83 @@ const insertManyPricing = async (req, res) => {
   return res.status(200).json(updatedExperience);
 };
 
-const addingCalenderEvents = async (req, res) => {
-  const { id } = req.params;
-  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ error: "Invalid id" });
-  }
-  const experience = await experienceModel.findById(id);
-  if (!experience) {
-    return res.status(400).json({ error: "Experience not found" });
-  }
-  const body = req.body;
-  const events = body.map((event) => {
-    return {
-      event: event,
-    };
-  });
-  console.log(body, "in calender controller");
-  const insertManyEvents = await calenderEventModel.insertMany(events);
-  const insertManyEventsId = [];
-  for (let i = 0; i < insertManyEvents.length; i++) {
-    insertManyEventsId.push(insertManyEvents[i]._id);
-  }
-  const updatedExperience = await experienceModel
-    .findByIdAndUpdate(id, {
-      calender_events: insertManyEventsId,
+
+
+const addCalenderEvents = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid id" });
+    }
+    const experience = await experienceModel.findById(id);
+    if (!experience) {
+      return res.status(400).json({ error: "Experience not found" });
+    }
+    const body = req.body;
+    console.log(body, " body");
+    // single event data
+    const event = await calenderEventModel.create(body);
+    const exsitedCalenderEventIds = experience.calender_events;
+    const updatedCalenderEvents = [...exsitedCalenderEventIds, event._id];
+    const updateExperience = await experienceModel
+      .findByIdAndUpdate(
+        id,
+        {
+          calender_events: updatedCalenderEvents,
+        },
+        { new: true }
+      );
+    const allCalenderEvents = await calenderEventModel.find({
+      _id: { $in: updatedCalenderEvents }
     })
-    .populate("calender_events")
-    .populate("availability_detail")
-    .populate("pricing")
-    .populate("meeting_point");
-  return res.status(200).json(updatedExperience);
-};
+    return res.status(200).json(allCalenderEvents);
+  } catch (error) {
+    res.send(error)
+  }
+}
+
+
+const deleteCalenderEvents = async (req, res) => {
+  try {
+
+    const { calenderEvnetId, experienceId } = req.body;
+    if (!calenderEvnetId || !mongoose.Types.ObjectId.isValid(calenderEvnetId)) {
+      return res.status(400).json({ error: "Invalid id calenderEventId" });
+    }
+    if (!experienceId || !mongoose.Types.ObjectId.isValid(experienceId)) {
+      return res.status(400).json({ error: "Invalid id experienceId" });
+    }
+    const isEventExist = await calenderEventModel.findById(calenderEvnetId);
+    if (!isEventExist) {
+      return res.status(400).json({ error: "Event not found" });
+    }
+    const isExperienceExist = await experienceModel.findById(experienceId);
+    if (!isExperienceExist) {
+      return res.status(400).json({ error: "Experience not found" });
+    }
+    const deleteCalenderEvents = await calenderEventModel
+      .findByIdAndDelete(calenderEvnetId);
+    const removedIds = isExperienceExist.calender_events.filter(
+      (id) => id !== isEventExist._id
+    );
+    const updateExperience = await experienceModel
+      .findByIdAndUpdate(
+        experienceId,
+        {
+          calender_events: removedIds,
+        }
+      );
+    const allCalenderEvent = await calenderEventModel
+      .find({
+        _id: {
+          $in: removedIds
+        }
+      });
+    return res.status(200).json(allCalenderEvent);
+  } catch (error) {
+    res.send(error)
+  }
+}
 
 module.exports = {
   getAllExperience,
@@ -449,4 +497,6 @@ module.exports = {
   updateExperienceWithTiming,
   updateExperienceWithStartTime,
   insertManyPricing,
+  deleteCalenderEvents,
+  addCalenderEvents
 };
