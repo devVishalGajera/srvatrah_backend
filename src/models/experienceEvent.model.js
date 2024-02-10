@@ -35,7 +35,26 @@ const eventSchema = new mongoose.Schema({
     },
     until: {
       type: String
-    }
+    },
+
+    byweekday: {
+      type: [String],
+      enum: [
+        "su",
+        "mo",
+        "tu",
+        "we",
+        "th",
+        "fr",
+        "sa",
+      ],
+    },
+    bymonthday: {
+      type: [Number],
+    },
+    bymonth: {
+      type: [Number],
+    },
   },
   start_time: [
     {

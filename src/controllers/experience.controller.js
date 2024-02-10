@@ -446,8 +446,9 @@ const addCalenderEvents = async (req, res) => {
 
 const deleteCalenderEvents = async (req, res) => {
   try {
+    const { experienceId } = req.params;
+    const { calenderEvnetId } = req.body;
 
-    const { calenderEvnetId, experienceId } = req.body;
     if (!calenderEvnetId || !mongoose.Types.ObjectId.isValid(calenderEvnetId)) {
       return res.status(400).json({ error: "Invalid id calenderEventId" });
     }
